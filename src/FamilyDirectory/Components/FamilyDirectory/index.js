@@ -1,29 +1,48 @@
 import React, { Component } from "react";
-import { Text, FlatList, StyleSheet } from "react-native";
+import { View, Text, FlatList, StyleSheet, Picker } from "react-native";
 import { FamilyDirectoryContext } from "../../Providers/FamilyDirectory";
 
 const FamilyDirectoryList = props => (
-  <FlatList
-    data={props.data}
-    renderItem={({ item }) => (
-      <FamilyDirectoryListItem
-        style={styles.item}
-        fullName={`${item.firstName} ${item.lastName}`}
+  <FamilyDirectoryContext.Consumer>
+    {({...data}) => (
+        <FlatList
+        data={data.students}
+        renderItem={({ item }) => (
+          <FamilyDirectoryListItem
+            style={styles.item}
+            fullName={`${item.firstName} ${item.lastName}`}
+          />
+        )}
       />
     )}
-  />
+  </FamilyDirectoryContext.Consumer>
+
 );
 
 const FamilyDirectoryListItem = props => (
   <Text style={props.style}>{props.fullName}</Text>
 );
 
+const GradeFilter = () => (
+  <FamilyDirectoryContext.Consumer>
+  {({ ...data, selectedGradeChanged }) => (
+  <Picker selectedValue={data.selectedGrade} onValueChange={(itemValue) => selectedGradeChanged(itemValue)}>
+    {data.grades.map(grade => (
+      <Picker.Item key={grade.value} value={grade.value} label={grade.name} />
+    ))}
+  </Picker>)}
+  </FamilyDirectoryContext.Consumer>
+);
+
 class FamilyDirectory extends Component {
   render() {
     return (
       <FamilyDirectoryContext.Consumer>
-        {({ ...data }) => (
-          <FamilyDirectoryList data={data.students} />
+        {({ ...data, selectedGradeChanged }) => (
+          <View>
+            <GradeFilter />
+            <FamilyDirectoryList />
+          </View>
         )}
       </FamilyDirectoryContext.Consumer>
     );
